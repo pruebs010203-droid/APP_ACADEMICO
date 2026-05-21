@@ -3,9 +3,9 @@ WORKDIR /app
 COPY appAcademico/ .
 RUN composer install --no-dev --optimize-autoloader
 
-FROM php:8.2-fpm
-WORKDIR /var/www/html
-COPY --from=build /app /var/www/html
-RUN chown -R www-data:www-data /var/www/html
-EXPOSE 9000
-CMD ["php-fpm"]
+FROM php:8.2-cli
+WORKDIR /app
+COPY --from=build /app /app
+RUN chown -R www-data:www-data /app
+EXPOSE 8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
