@@ -7,6 +7,6 @@ FROM php:8.2-apache
 WORKDIR /var/www/html
 COPY --from=build /app /var/www/html
 RUN chown -R www-data:www-data /var/www/html
-RUN a2enmod rewrite
+RUN a2dismod mpm_event && a2enmod mpm_prefork && a2enmod rewrite
 EXPOSE 80
 CMD ["apache2-foreground"]
