@@ -177,13 +177,6 @@ class NotificacionController extends Controller
             'ruta_archivo' => ['nullable', 'string', 'max:255'],
         ]);
 
-        // Validate file separately to avoid web FormData issues
-        if ($request->hasFile('archivo')) {
-            $request->validate([
-                'archivo' => ['file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,webp'],
-            ]);
-        }
-
         $usuario = $request->user();
         $habilidades = $usuario?->currentAccessToken()?->abilities ?? [];
         $rolActivo = collect($habilidades)->first(fn (string $habilidad) => $habilidad !== '*');
@@ -282,7 +275,7 @@ class NotificacionController extends Controller
         // Handle file upload during update
         if ($request->hasFile('archivo')) {
             $request->validate([
-                'archivo' => ['file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,webp'],
+                'archivo' => ['file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,gif,webp,doc,docx,xls,xlsx,ppt,pptx,txt'],
             ]);
             
             $file = $request->file('archivo');
