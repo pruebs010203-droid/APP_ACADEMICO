@@ -55,15 +55,25 @@ export default function UsuarioFormScreen({ navigation, route }) {
     return roles.map((r) => normalizeRoleValue(r?.rol ?? r?.name ?? r)).filter(Boolean);
   };
 
-  const [nombre, setNombre] = useState(usuario?.nombre ?? '');
-  const [email, setEmail] = useState(usuario?.email ?? '');
-  const [ru, setRu] = useState(usuario?.registro_universitario ?? '');
+  const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
+  const [ru, setRu] = useState('');
   const [password, setPassword] = useState('');
-  const [roles, setRoles] = useState(getInitialRoles(usuario));
+  const [roles, setRoles] = useState(['docente']);
   const carreraId = directorCarreraId;
   const [error, setError] = useState('');
   const [loading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Sincronizar estado cuando route.params cambia
+  useEffect(() => {
+    if (usuario) {
+      setNombre(usuario.nombre ?? '');
+      setEmail(usuario.email ?? '');
+      setRu(usuario.registro_universitario ?? '');
+      setRoles(getInitialRoles(usuario));
+    }
+  }, [usuario]);
 
   const esEstudiante = roles.includes('estudiante');
 

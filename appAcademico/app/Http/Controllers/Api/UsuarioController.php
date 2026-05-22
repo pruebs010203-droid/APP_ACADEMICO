@@ -406,6 +406,7 @@ class UsuarioController extends Controller
                         ]);
                     }
                 }
+                // Si no se proporciona roles, preservar los roles existentes
 
                 return $usuario->load(['rolesUsuario', 'carrera', 'facultad']);
             });

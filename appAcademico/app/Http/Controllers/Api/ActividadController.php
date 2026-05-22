@@ -69,7 +69,7 @@ class ActividadController extends Controller
                 'descripcion' => ['nullable', 'string'],
                 'categoria' => ['required', 'in:parcial,tarea,proyecto,evento,comunicado'],
                 'fecha_entrega' => ['nullable', 'date'],
-                'archivo' => ['nullable', 'file', 'max:10240'], // 10MB max
+                'archivo' => ['nullable', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,webp,doc,docx,xls,xlsx'],
                 'materia_id' => ['nullable', 'integer', 'exists:materias,id'],
                 'carrera_id' => ['nullable', 'integer', 'exists:carreras,id'],
                 'rol_destino' => ['required', 'in:todos,docentes,estudiantes'],
@@ -90,7 +90,15 @@ class ActividadController extends Controller
             $habilidades = $usuarioActual->currentAccessToken()?->abilities ?? [];
             $rolActivo = collect($habilidades)->first(fn (string $h) => $h !== '*');
 
-            if ($rolActivo === 'centro_estudiantes') {
+            if ($rolActivo === 'docente') {
+                // Docentes solo pueden crear actividades si tienen materia_id
+                if (!isset($data['materia_id']) || $data['materia_id'] === null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Debes especificar una materia para crear una actividad.',
+                    ], 403);
+                }
+            } elseif ($rolActivo === 'centro_estudiantes') {
                 // Solo puede asignar a su propia carrera
                 $rolUsuario = $usuarioActual->rolesUsuario()->where('rol', 'centro_estudiantes')->first();
                 $carreraPermitida = $rolUsuario?->carrera_id;
@@ -196,7 +204,7 @@ class ActividadController extends Controller
                 'descripcion' => ['nullable', 'string'],
                 'categoria' => ['sometimes', 'in:parcial,tarea,proyecto,evento,comunicado'],
                 'fecha_entrega' => ['nullable', 'date'],
-                'archivo' => ['nullable', 'file', 'max:10240'],
+                'archivo' => ['nullable', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,webp,doc,docx,xls,xlsx'],
                 'materia_id' => ['nullable', 'integer', 'exists:materias,id'],
                 'carrera_id' => ['nullable', 'integer', 'exists:carreras,id'],
                 'rol_destino' => ['sometimes', 'in:todos,docentes,estudiantes'],
@@ -242,6 +250,9 @@ class ActividadController extends Controller
                     }
                 }
             }
+
+            // Procesar archivo si existe en update
+            if ($request->hasFile('archivo')) {
                 // Eliminar archivo anterior si existe
                 if ($actividad->ruta_archivo) {
                     Storage::disk('public')->delete($actividad->ruta_archivo);

@@ -117,22 +117,34 @@ export default function UsuarioFormScreen({ navigation, route }) {
   const usuario   = route.params?.usuario;
   const isEditing = Boolean(usuario);
 
-  const [nombre,       setNombre]       = useState(usuario?.nombre ?? '');
-  const [email,        setEmail]        = useState(usuario?.email ?? '');
-  const [ru,           setRu]           = useState(usuario?.registro_universitario ?? '');
+  const [nombre,       setNombre]       = useState('');
+  const [email,        setEmail]        = useState('');
+  const [ru,           setRu]           = useState('');
   const [password,     setPassword]     = useState('');
-  const [comboId,      setComboId]      = useState(() => getRolesComboId(getInitialRoles(usuario)));
-  const [carreraId,    setCarreraId]    = useState(
-    usuario?.carrera_id ? String(usuario.carrera_id) : usuario?.carrera?.id ? String(usuario.carrera.id) : '',
-  );
-  const [facultadId,   setFacultadId]   = useState(
-    usuario?.facultad_id ? String(usuario.facultad_id) : usuario?.facultad?.id ? String(usuario.facultad.id) : '',
-  );
+  const [comboId,      setComboId]      = useState(null);
+  const [carreraId,    setCarreraId]    = useState('');
+  const [facultadId,   setFacultadId]   = useState('');
   const [carreras,     setCarreras]     = useState([]);
   const [facultades,   setFacultades]   = useState([]);
   const [error,        setError]        = useState('');
   const [loading,      setLoading]      = useState(true);
   const [saving,       setSaving]       = useState(false);
+
+  // Sincronizar estado cuando route.params cambia
+  useEffect(() => {
+    if (usuario) {
+      setNombre(usuario.nombre ?? '');
+      setEmail(usuario.email ?? '');
+      setRu(usuario.registro_universitario ?? '');
+      setComboId(getRolesComboId(getInitialRoles(usuario)));
+      setCarreraId(
+        usuario?.carrera_id ? String(usuario.carrera_id) : usuario?.carrera?.id ? String(usuario.carrera.id) : ''
+      );
+      setFacultadId(
+        usuario?.facultad_id ? String(usuario.facultad_id) : usuario?.facultad?.id ? String(usuario.facultad.id) : ''
+      );
+    }
+  }, [usuario]);
 
   useEffect(() => {
     (async () => {
