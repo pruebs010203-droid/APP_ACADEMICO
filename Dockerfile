@@ -9,7 +9,5 @@ COPY --from=build /app /app
 RUN chown -R www-data:www-data /app
 RUN apt-get update && apt-get install -y libpq-dev
 RUN docker-php-ext-install pdo pdo_pgsql pgsql
-RUN php artisan migrate --force
-RUN php artisan db:seed --force
 EXPOSE 8000
 CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
