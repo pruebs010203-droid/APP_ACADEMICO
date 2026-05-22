@@ -135,6 +135,10 @@ class ActividadController extends Controller
                 $rutaArchivo = $request->file('archivo')->store('actividades', 'public');
             }
 
+            // Convertir strings vacíos a null para campos integer
+            $materia_id = (!isset($data['materia_id']) || $data['materia_id'] === '' || $data['materia_id'] === '0') ? null : $data['materia_id'];
+            $carrera_id = (!isset($data['carrera_id']) || $data['carrera_id'] === '' || $data['carrera_id'] === '0') ? null : $data['carrera_id'];
+
             $actividad = Actividad::create([
                 'titulo' => $data['titulo'],
                 'descripcion' => $data['descripcion'] ?? null,
@@ -142,8 +146,8 @@ class ActividadController extends Controller
                 'fecha_entrega' => $data['fecha_entrega'] ?? null,
                 'ruta_archivo' => $rutaArchivo,
                 'creado_por' => $usuarioActual->id,
-                'materia_id' => $data['materia_id'] ?? null,
-                'carrera_id' => $data['carrera_id'] ?? null,
+                'materia_id' => $materia_id,
+                'carrera_id' => $carrera_id,
                 'rol_destino' => $data['rol_destino'],
             ]);
 
