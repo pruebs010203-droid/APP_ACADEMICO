@@ -66,22 +66,28 @@ class MateriaPeriodoController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'periodo_id' => 'required|exists:periodos,id',
-            'materia_id' => 'required|exists:materias,id',
-            'docente_id' => 'nullable|exists:usuarios,id',
-            'paralelo'   => 'nullable|string|max:10',
-            'estado' => 'in:activa,cancelada,finalizada',
-            'observaciones' => 'nullable|string',
-        ]);
+            $validator = Validator::make($request->all(), [
+                'periodo_id' => 'required|exists:periodos,id',
+                'materia_id' => 'required|exists:materias,id',
+                'docente_id' => 'nullable|exists:usuarios,id',
+                'paralelo'   => 'nullable|string|max:10',
+                'estado' => 'nullable|in:activa,cancelada,finalizada',
+                'observaciones' => 'nullable|string',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Datos inválidos.',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos inválidos.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $data = $validator->validated();
+            // Establecer estado por defecto si no viene
+            if (!isset($data['estado']) || empty($data['estado'])) {
+                $data['estado'] = 'activa';
+            }
 
         try {
             $periodo = Periodo::find($request->periodo_id);
@@ -131,7 +137,7 @@ class MateriaPeriodoController extends Controller
                 ], 409);
             }
 
-            $oferta = MateriaPeriodo::create($validator->validated());
+            $oferta = MateriaPeriodo::create($data);
             $oferta->load(['materia.carrera', 'periodo', 'docente']);
 
             return response()->json([
